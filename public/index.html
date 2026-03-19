@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trello-to-Jira Sync (Basic Version)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Manrope:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <main class="container">
+    <div class="top-controls">
+      <p class="demo-hint">Tip: Press P to toggle Presentation Mode</p>
+      <button type="button" id="presentationToggle" class="ghost-btn compact">Enable Presentation Mode</button>
+    </div>
+
+    <section class="hero">
+      <p class="kicker">Integration Prototype</p>
+      <h1>Trello-to-Jira Sync (Basic Version)</h1>
+      <p class="subtitle">Move cards to issues in one click, then inspect every result clearly.</p>
+    </section>
+
+    <section class="metrics panel">
+      <h2>Sync Snapshot</h2>
+      <div class="metric-grid">
+        <article class="metric-card">
+          <p class="metric-label">Total Cards</p>
+          <p id="totalCount" class="metric-value">0</p>
+        </article>
+        <article class="metric-card success">
+          <p class="metric-label">Created in Jira</p>
+          <p id="successCount" class="metric-value">0</p>
+        </article>
+        <article class="metric-card error">
+          <p class="metric-label">Failed</p>
+          <p id="errorCount" class="metric-value">0</p>
+        </article>
+      </div>
+      <p id="statusBadge" class="status-badge idle">Ready to sync</p>
+    </section>
+
+    <section class="panel controls-panel">
+      <h2>Credentials & Settings</h2>
+      <p class="panel-note">
+        Tip: For GitHub + Vercel, keep secrets in environment variables. This form can still override values at runtime.
+      </p>
+      <form id="syncForm">
+        <div class="grid">
+          <label>
+            Trello API Key
+            <input type="text" id="trelloApiKey" autocomplete="off" required />
+          </label>
+
+          <label>
+            Trello Token
+            <input type="password" id="trelloToken" autocomplete="off" required />
+            <small><a href="https://trello.com/app-key" target="_blank" rel="noreferrer">Get Trello token</a></small>
+          </label>
+
+          <label>
+            Jira Email
+            <input type="email" id="jiraEmail" required />
+          </label>
+
+          <label>
+            Jira API Token
+            <input type="password" id="jiraApiToken" autocomplete="off" required />
+            <small><a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noreferrer">Get Jira API token</a></small>
+          </label>
+
+          <label>
+            Jira Base URL
+            <input type="url" id="jiraBaseUrl" placeholder="https://your-domain.atlassian.net" required />
+          </label>
+
+          <label>
+            Trello Board ID
+            <input type="text" id="trelloBoardId" required />
+          </label>
+
+          <label>
+            Jira Project Key
+            <input type="text" id="jiraProjectKey" required />
+          </label>
+        </div>
+
+        <div class="actions-row">
+          <button type="button" id="previewBtn" class="ghost-btn">Preview Trello Cards</button>
+          <button type="submit" id="syncBtn">Sync Trello Cards to Jira</button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header-inline">
+        <h2>Trello Preview</h2>
+        <p id="previewCount" class="mini-badge">No preview yet</p>
+      </div>
+      <ul id="previewList" class="result-list"></ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header-inline">
+        <h2>Sync Timeline</h2>
+        <p class="mini-badge">Card by card mapping</p>
+      </div>
+      <ul id="timelineList" class="timeline-list">
+        <li class="timeline-item placeholder">
+          <span class="timeline-dot"></span>
+          <div class="timeline-content">Preview cards first, then run sync to see the full Trello to Jira story.</div>
+        </li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <div class="panel-header-inline">
+        <h2>Jira Issue Gallery</h2>
+        <button type="button" id="copySummaryBtn" class="ghost-btn" disabled>Copy Demo Summary</button>
+      </div>
+      <p class="panel-note issue-note">Live iframe embedding is restricted by Jira security headers, so this gallery uses rich smart cards with direct issue links.</p>
+      <div id="logOutput" class="logs">No sync executed yet.</div>
+      <ul id="resultList" class="result-list"></ul>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>

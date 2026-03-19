@@ -1,0 +1,13 @@
+{
+  "name": "trello-to-jira-sync-basic",
+  "version": "1.0.0",
+  "description": "Basic Trello to Jira sync prototype using Express",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "dotenv": "^17.3.1",
+    "express": "^4.21.2"
+  }
+}
