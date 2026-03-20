@@ -21,6 +21,12 @@ let lastSyncSummaryText = '';
 let lastPreviewCards = [];
 let lastSyncResults = [];
 
+const UI_FIXED_DEFAULTS = {
+  jiraEmail: 'tehfeyti@gmail.com',
+  jiraBaseUrl: 'https://tehfeyti-1772712475793.atlassian.net',
+  trelloBoardId: '178VvA7U'
+};
+
 function setStepState(step, state) {
   if (!step) {
     return;
@@ -112,6 +118,14 @@ async function loadDefaults() {
 
 loadDefaults();
 bindSecretVisibilityToggles();
+
+// Always apply requested site defaults for these fields.
+for (const [fieldId, value] of Object.entries(UI_FIXED_DEFAULTS)) {
+  const input = document.getElementById(fieldId);
+  if (input) {
+    input.value = value;
+  }
+}
 
 // Updates summary cards and top status badge.
 function updateSummary({ total = 0, success = 0, failed = 0, state = 'idle', text = 'Ready to sync' }) {
