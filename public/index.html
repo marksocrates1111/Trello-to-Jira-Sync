@@ -11,15 +11,46 @@
 </head>
 <body>
   <main class="container">
-    <div class="top-controls">
-      <p class="demo-hint">Tip: Press P to toggle Presentation Mode</p>
-      <button type="button" id="presentationToggle" class="ghost-btn compact">Enable Presentation Mode</button>
-    </div>
+    <header class="app-header">
+      <div>
+        <p class="kicker">Customer Integration Experience</p>
+        <h1>Trello-to-Jira Sync Platform</h1>
+        <p class="subtitle">Sync cards into Jira issues with a guided, visual workflow your team can trust.</p>
+      </div>
+      <div class="top-controls">
+        <p class="demo-hint">Tip: Press P to toggle Presentation Mode</p>
+        <button type="button" id="presentationToggle" class="ghost-btn compact">Enable Presentation Mode</button>
+      </div>
+    </header>
 
-    <section class="hero">
-      <p class="kicker">Integration Prototype</p>
-      <h1>Trello-to-Jira Sync (Basic Version)</h1>
-      <p class="subtitle">Move cards to issues in one click, then inspect every result clearly.</p>
+    <section class="panel workflow-panel">
+      <div class="panel-header-inline">
+        <h2>Workflow</h2>
+        <p id="runMeta" class="mini-badge">No run yet</p>
+      </div>
+      <ol class="workflow-steps">
+        <li id="stepConnect" class="workflow-step active">
+          <span class="step-index">1</span>
+          <div>
+            <p class="step-title">Connect Accounts</p>
+            <p class="step-copy">Enter Trello and Jira credentials.</p>
+          </div>
+        </li>
+        <li id="stepPreview" class="workflow-step">
+          <span class="step-index">2</span>
+          <div>
+            <p class="step-title">Preview Trello Cards</p>
+            <p class="step-copy">Validate source cards before sync.</p>
+          </div>
+        </li>
+        <li id="stepSync" class="workflow-step">
+          <span class="step-index">3</span>
+          <div>
+            <p class="step-title">Create Jira Issues</p>
+            <p class="step-copy">Run sync and review issue outcomes.</p>
+          </div>
+        </li>
+      </ol>
     </section>
 
     <section class="metrics panel">
@@ -44,7 +75,7 @@
     <section class="panel controls-panel">
       <h2>Credentials & Settings</h2>
       <p class="panel-note">
-        Tip: For GitHub + Vercel, keep secrets in environment variables. This form can still override values at runtime.
+        Tip: For production deployments, keep secrets in environment variables. This form can override values for testing.
       </p>
       <form id="syncForm">
         <div class="grid">
@@ -55,7 +86,10 @@
 
           <label>
             Trello Token
-            <input type="password" id="trelloToken" autocomplete="off" required />
+            <div class="input-with-action">
+              <input type="password" id="trelloToken" autocomplete="off" required />
+              <button type="button" class="input-action" data-toggle-target="trelloToken">Show</button>
+            </div>
             <small><a href="https://trello.com/app-key" target="_blank" rel="noreferrer">Get Trello token</a></small>
           </label>
 
@@ -66,7 +100,10 @@
 
           <label>
             Jira API Token
-            <input type="password" id="jiraApiToken" autocomplete="off" required />
+            <div class="input-with-action">
+              <input type="password" id="jiraApiToken" autocomplete="off" required />
+              <button type="button" class="input-action" data-toggle-target="jiraApiToken">Show</button>
+            </div>
             <small><a href="https://id.atlassian.com/manage-profile/security/api-tokens" target="_blank" rel="noreferrer">Get Jira API token</a></small>
           </label>
 
@@ -91,6 +128,11 @@
           <button type="submit" id="syncBtn">Sync Trello Cards to Jira</button>
         </div>
       </form>
+      <div class="trust-strip" aria-label="Trust indicators">
+        <span>Secure token fields</span>
+        <span>Preview before sync</span>
+        <span>Per-card audit trail</span>
+      </div>
     </section>
 
     <section class="panel">

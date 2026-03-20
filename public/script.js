@@ -3,6 +3,10 @@ const logOutput = document.getElementById('logOutput');
 const syncBtn = document.getElementById('syncBtn');
 const previewBtn = document.getElementById('previewBtn');
 const presentationToggle = document.getElementById('presentationToggle');
+const runMeta = document.getElementById('runMeta');
+const stepConnect = document.getElementById('stepConnect');
+const stepPreview = document.getElementById('stepPreview');
+const stepSync = document.getElementById('stepSync');
 const resultList = document.getElementById('resultList');
 const previewList = document.getElementById('previewList');
 const previewCount = document.getElementById('previewCount');
@@ -16,6 +20,62 @@ const statusBadge = document.getElementById('statusBadge');
 let lastSyncSummaryText = '';
 let lastPreviewCards = [];
 let lastSyncResults = [];
+
+function setStepState(step, state) {
+  if (!step) {
+    return;
+  }
+  step.classList.remove('active', 'done');
+  if (state === 'active' || state === 'done') {
+    step.classList.add(state);
+  }
+}
+
+function updateWorkflowState(stage) {
+  if (stage === 'connect') {
+    setStepState(stepConnect, 'active');
+    setStepState(stepPreview, '');
+    setStepState(stepSync, '');
+    return;
+  }
+  if (stage === 'preview') {
+    setStepState(stepConnect, 'done');
+    setStepState(stepPreview, 'active');
+    setStepState(stepSync, '');
+    return;
+  }
+  if (stage === 'syncing') {
+    setStepState(stepConnect, 'done');
+    setStepState(stepPreview, 'done');
+    setStepState(stepSync, 'active');
+    return;
+  }
+  if (stage === 'completed') {
+    setStepState(stepConnect, 'done');
+    setStepState(stepPreview, 'done');
+    setStepState(stepSync, 'done');
+  }
+}
+
+function updateRunMeta(text) {
+  runMeta.textContent = text;
+}
+
+function bindSecretVisibilityToggles() {
+  const buttons = document.querySelectorAll('[data-toggle-target]');
+  for (const button of buttons) {
+    button.addEventListener('click', () => {
+      const targetId = button.getAttribute('data-toggle-target');
+      const input = document.getElementById(targetId);
+      if (!input) {
+        return;
+      }
+      const show = input.type === 'password';
+      input.type = show ? 'text' : 'password';
+      button.textContent = show ? 'Hide' : 'Show';
+    });
+  }
+}
 
 // Load saved defaults from backend and prefill form fields.
 async function loadDefaults() {
@@ -51,6 +111,7 @@ async function loadDefaults() {
 }
 
 loadDefaults();
+bindSecretVisibilityToggles();
 
 // Updates summary cards and top status badge.
 function updateSummary({ total = 0, success = 0, failed = 0, state = 'idle', text = 'Ready to sync' }) {
@@ -262,6 +323,8 @@ function getPayloadFromForm() {
 }
 
 previewBtn.addEventListener('click', async () => {
+  updateWorkflowState('preview');
+  updateRunMeta('Previewing cards...');
   previewBtn.disabled = true;
   previewBtn.textContent = 'Loading Preview...';
   renderLogs([{ text: 'Fetching Trello cards preview...', type: 'info' }]);
@@ -288,6 +351,7 @@ previewBtn.addEventListener('click', async () => {
     renderPreviewList(data.cards);
     lastPreviewCards = data.cards;
     renderTimeline(lastPreviewCards, [], null);
+    updateRunMeta(`Preview ready: ${data.totalCards} cards`);
     renderLogs([{ text: `Preview loaded. Trello cards found: ${data.totalCards}`, type: 'success' }]);
   } catch (error) {
     renderPreviewList([]);
@@ -296,6 +360,8 @@ previewBtn.addEventListener('click', async () => {
       { text: 'Preview failed due to a network or server error.', type: 'error' },
       { text: error.message, type: 'error' }
     ]);
+    updateWorkflowState('connect');
+    updateRunMeta('Preview failed');
   } finally {
     previewBtn.disabled = false;
     previewBtn.textContent = 'Preview Trello Cards';
@@ -344,6 +410,8 @@ syncForm.addEventListener('submit', async (event) => {
   syncBtn.disabled = true;
   previewBtn.disabled = true;
   copySummaryBtn.disabled = true;
+  updateWorkflowState('syncing');
+  updateRunMeta('Sync in progress...');
   lastSyncSummaryText = '';
   syncBtn.textContent = 'Syncing...';
   renderResultList([]);
@@ -363,6 +431,8 @@ syncForm.addEventListener('submit', async (event) => {
     if (!response.ok || !data.success) {
       lastSyncResults = [];
       updateSummary({ state: 'error', text: 'Sync failed' });
+      updateRunMeta('Sync failed');
+      updateWorkflowState('preview');
       renderLogs([
         { text: 'Sync failed.', type: 'error' },
         { text: data.message || 'Unknown error', type: 'error' }
@@ -405,6 +475,8 @@ syncForm.addEventListener('submit', async (event) => {
     renderLogs(lines);
     renderResultList(data.results);
     renderTimeline(lastPreviewCards, lastSyncResults, durationInSeconds);
+    updateWorkflowState('completed');
+    updateRunMeta(`Last sync: ${durationInSeconds}s`);
 
     lastSyncSummaryText = [
       'Trello-to-Jira Sync Demo Summary',
@@ -417,6 +489,8 @@ syncForm.addEventListener('submit', async (event) => {
   } catch (error) {
     lastSyncResults = [];
     updateSummary({ state: 'error', text: 'Sync failed' });
+    updateRunMeta('Sync failed');
+    updateWorkflowState('preview');
     renderLogs([
       { text: 'Sync failed due to a network or server error.', type: 'error' },
       { text: error.message, type: 'error' }
@@ -431,3 +505,5 @@ syncForm.addEventListener('submit', async (event) => {
 updateSummary({});
 setPresentationMode(false);
 renderTimeline([], [], null);
+updateWorkflowState('connect');
+updateRunMeta('No run yet');
